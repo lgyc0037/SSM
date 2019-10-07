@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+	
+	<!-- 1.开启注解扫描：只扫描@Controller -->
+	<context:component-scan base-package="com.houb.controller" />
+
+	<!-- 2.mvc注解驱动扫描器：完成内部数据绑定和转换的操作 -->
+	<mvc:annotation-driven>
+		<mvc:message-converters>
+			<!--消息转换器，解决json中文乱码 -->
+			<!-- <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+				<property name="supportedMediaTypes">
+					<list>
+						<value>application/json;charset=UTF-8</value>
+					</list>
+				</property>
+			</bean> -->
+			<!-- 解决json日期格式不正确的配置 -->
+			<bean class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+				<property name="supportedMediaTypes">
+					<list>
+						<value>application/json;charset=UTF-8</value>
+						<value>text/html;charset=UTF-8</value>
+					</list>
+				</property>
+				<property name="features">
+					<list>
+						<value>WriteDateUseDateFormat</value>
+					</list>
+				</property>
+			</bean>
+
+
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+
+
+	<!--  conversion-service="myConverter" -->
+	<!-- <bean id="myConverter"
+		class="org.springframework.context.support.ConversionServiceFactoryBean">
+		<property name="converters">
+			<list>
+				<bean class="com.houb.utils.StringToDateConverter">
+					<property name="patten" value="yyyy-MM-dd"></property>
+				</bean>
+			</list>
+		</property>
+	</bean> -->
+
+
+	<!-- 3.静态资源映射：mapping:jsp页面中引用时候用的url路径；location：本地实际路径 -->
+	<!-- <mvc:resources mapping="/statics/**" location="/statics/" /> -->
+	<mvc:default-servlet-handler />
+
+	<!-- 完成视图的对应 -->
+
+
+	<!-- 4.视图解析器：对转向页面的路径解析。prefix：前缀， suffix：后缀 -->
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/page/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+	<!-- 5.全局异常处理 -->
+	<bean
+		class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+
+		<property name="exceptionMappings">
+			<props>
+				<prop key="java.lang.RuntimeException">error</prop>
+			</props>
+		</property>
+	</bean>
+
+
+	<!-- 6.配置MultipartResolver，用于上传文件，使用spring的CommonsMultipartResolver -->
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize" value="5000000" />
+		<property name="defaultEncoding" value="UTF-8" />
+	</bean>
+
+
+
+
+
+
+</beans>

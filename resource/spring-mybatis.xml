@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:p="http://www.springframework.org/schema/p" 
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="   
+            http://www.springframework.org/schema/beans 
+            http://www.springframework.org/schema/beans/spring-beans.xsd   
+            http://www.springframework.org/schema/aop 
+            http://www.springframework.org/schema/aop/spring-aop.xsd   
+            http://www.springframework.org/schema/tx 
+            http://www.springframework.org/schema/tx/spring-tx.xsd 
+            http://www.springframework.org/schema/context 
+            http://www.springframework.org/schema/context/spring-context.xsd">
+	<!-- 使spring扫描包下的所有类，让标注spring注解的类生效 若扫描到有@Component @Controller@Service等这些注解的类，则把这些类注册为bean -->
+	
+	<!-- 0.读取配置文件中的key到spring容器中 -->
+	<context:property-placeholder location="classpath:database.properties"/>
+	
+	
+	<!-- 1.datasource -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="${driver}"></property>
+		<property name="url"
+			value="${url}"></property>
+		<property name="username" value="${user}"></property>
+		<property name="password" value="${password}"></property>
+	</bean>
+	
+	<!-- 2.sqlsessionFactory -->
+	<bean id="sessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<!-- 数据源：引用第一步的 dataSource-->
+		<property name="dataSource" ref="dataSource"></property>
+		<!-- mybatis本地配置文件的路径 -->
+		<property name="configLocation" value="classpath:mybatis-config.xml"></property>
+		<!-- mybatis映射文件的路径 -->
+		<!-- <property name="mapperLocations" value="classpath:src/com/houb/mapper/*.xml"></property> -->
+		<!-- <property name="mapperLocations">
+			<list>
+				<value>src/com/houb/mapper/SmbmsRoleMapper.xml</value>
+				<value>src/com/houb/mapper/SmbmsUserMapper.xml</value>
+			</list>
+		</property> -->
+	</bean>
+	
+	
+	<!-- 3.MapperScannerConfigurer自动注入dao层的实现-->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.houb.mapper"></property>
+	</bean>
+	
+	
+	<!-- 4.开启注解扫描自动注入service层代码 -->
+	<context:component-scan base-package="com.houb.service.impl"></context:component-scan>
+	
+	
+	<!-- 5.事务配置 -->
+	<!-- 5.1 声明datasourcetransactionmanager-->
+	<bean id="dtm" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<constructor-arg ref="dataSource"></constructor-arg>
+	</bean>
+	
+	
+	<!-- 5.2事务增强，在什么样的方法中执行什么样的事务 -->
+	<tx:advice transaction-manager="dtm" id="txAdvice">
+		<tx:attributes>
+			<tx:method name="add*" propagation="REQUIRED"/>
+			<tx:method name="save*" propagation="REQUIRED"/>
+			<tx:method name="update*" propagation="REQUIRED"/>
+			<tx:method name="delete*" propagation="REQUIRED"/>
+			<tx:method name="find*" propagation="REQUIRED" read-only="true"/>
+			<tx:method name="get*" propagation="REQUIRED" read-only="true"/>
+			<tx:method name="*" propagation="REQUIRED" />
+		</tx:attributes>
+	</tx:advice>
+	
+	
+	<!-- 5.3 aop配置-->
+	<aop:config>
+		<!-- 切入点 -->
+		<aop:pointcut expression="execution(* com.houb.service.impl..*.*(..))" id="pt"/>
+		<!-- 关联配置 ：切面。-->
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="pt"/>
+	</aop:config>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+</beans>
