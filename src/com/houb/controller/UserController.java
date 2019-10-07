@@ -43,6 +43,11 @@ public class UserController extends BaseController{
 		System.out.println("/跳转到登录页面！");
 		return "login";
 	}
+	@RequestMapping("/ceSi")
+	public String ceSi(){
+		System.out.println("/这是个练习github的小测试");
+		return "xxx";
+	}
 	
 	@RequestMapping("/toLogin")
 	public String toLogin(){
