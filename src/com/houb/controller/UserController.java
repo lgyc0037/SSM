@@ -45,8 +45,13 @@ public class UserController extends BaseController{
 	}
 	@RequestMapping("/ceSi")
 	public String ceSi(){
-		System.out.println("/这是个练习github的小测试");
+		System.out.println("/这是个练习github的小测试s");
 		return "xxx";
+	}
+
+	public String sss(){
+		System.out.println("我吐了");
+		return "wotule";
 	}
 	
 	@RequestMapping("/toLogin")
