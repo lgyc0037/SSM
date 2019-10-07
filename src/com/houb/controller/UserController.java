@@ -53,6 +53,10 @@ public class UserController extends BaseController{
 		System.out.println("我吐了");
 		return "wotule";
 	}
+    public String ss1s(){
+        System.out.println("我吐了");
+        return "wotule";
+    }
 	
 	@RequestMapping("/toLogin")
 	public String toLogin(){
